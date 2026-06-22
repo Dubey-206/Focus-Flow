@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FocusFlow — Professional State-Driven Task Manager</title>
+  <meta name="description" content="A premium, state-driven productivity board and task manager built with vanilla HTML, CSS, and JS. Keep your workflow organized.">
+  <!-- Google Fonts: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    <!-- Sidebar (Controls, Form, Quick Actions) -->
+    <aside class="app-sidebar" aria-label="Sidebar Actions">
+      <header class="app-header">
+        <div class="logo-wrapper">
+          <img src="assets/logo.svg" alt="FocusFlow Logo" class="app-logo" width="36" height="36">
+          <h1 class="app-title">FocusFlow</h1>
+        </div>
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle light or dark theme" title="Toggle Theme (Ctrl+Shift+D)">
+          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m12.728 12.728A9 9 0 115.636 5.636 9 9 0 0118.364 18.364z" />
+          </svg>
+          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </header>
+
+      <!-- Task Form -->
+      <section class="form-section">
+        <h2>Create Task</h2>
+        <form id="task-form" novalidate>
+          <div class="input-group">
+            <label for="task-title-input">Task Title *</label>
+            <input type="text" id="task-title-input" required maxlength="80" placeholder="e.g. Build portfolio site" autocomplete="off">
+            <span class="char-count"><span id="title-char-current">0</span>/80</span>
+          </div>
+
+          <div class="input-group">
+            <label for="task-desc-input">Description</label>
+            <textarea id="task-desc-input" rows="3" maxlength="200" placeholder="Optional details..."></textarea>
+            <span class="char-count"><span id="desc-char-current">0</span>/200</span>
+          </div>
+
+          <div class="form-row">
+            <div class="input-group">
+              <label for="task-priority-input">Priority</label>
+              <select id="task-priority-input">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label for="task-category-input">Category</label>
+              <select id="task-category-input">
+                <option value="work" selected>Work</option>
+                <option value="personal">Personal</option>
+                <option value="shopping">Shopping</option>
+                <option value="ideas">Ideas</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="task-date-input">Due Date</label>
+            <input type="date" id="task-date-input">
+          </div>
+
+          <button type="submit" id="add-task-btn" class="btn btn-primary">Add Task</button>
+        </form>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="actions-section">
+        <h3>Quick Actions</h3>
+        <div class="actions-grid">
+          <button id="action-complete-all" class="btn btn-secondary" title="Mark all filtered tasks as complete">Mark All Complete</button>
+          <button id="action-clear-completed" class="btn btn-secondary" title="Delete completed tasks">Clear Completed</button>
+          <button id="action-reset-filters" class="btn btn-secondary" title="Reset all sorting and filter settings">Reset Filters</button>
+          <button id="action-delete-all" class="btn btn-danger" title="Clear all tasks permanently">Delete All</button>
+        </div>
+      </section>
+
+      <footer class="sidebar-footer">
+        <p>Shortcuts: <kbd>Ctrl</kbd>+<kbd>F</kbd> Search | <kbd>Esc</kbd> Cancel Edit</p>
+      </footer>
+    </aside>
+
+    <!-- Main Workspace (Dashboard, Filters, Task List) -->
+    <main class="app-main">
+      <!-- Dashboard Analytics Panel -->
+      <section class="dashboard-section" aria-label="Dashboard Metrics">
+        <div class="dashboard-stats">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">Total Tasks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-active">0</div>
+            <div class="stat-label">Active</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-completed">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-percent">0%</div>
+            <div class="stat-label">Completion</div>
+          </div>
+        </div>
+        <div class="progress-bar-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-bar-fill" id="dashboard-progress-fill"></div>
+        </div>
+      </section>
+
+      <!-- Filters & Sorting Controls -->
+      <section class="filters-section" aria-label="Filters and Sorting">
+        <div class="search-bar-wrapper">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" id="search-input" placeholder="Search tasks... (Ctrl+F)" autocomplete="off">
+        </div>
+
+        <div class="filters-grid">
+          <!-- Status Tabs -->
+          <div class="filter-group status-tabs" role="tablist">
+            <button class="tab-btn active" role="tab" aria-selected="true" data-status="all">All</button>
+            <button class="tab-btn" role="tab" aria-selected="false" data-status="active">Active</button>
+            <button class="tab-btn" role="tab" aria-selected="false" data-status="completed">Completed</button>
+          </div>
+
+          <!-- Select Filters -->
+          <div class="filter-selectors">
+            <div class="select-wrapper">
+              <label for="filter-priority" class="sr-only">Filter Priority</label>
+              <select id="filter-priority" title="Filter Priority">
+                <option value="all">Priority: All</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+
+            <div class="select-wrapper">
+              <label for="filter-category" class="sr-only">Filter Category</label>
+              <select id="filter-category" title="Filter Category">
+                <option value="all">Category: All</option>
+                <option value="work">Work</option>
+                <option value="personal">Personal</option>
+                <option value="shopping">Shopping</option>
+                <option value="ideas">Ideas</option>
+              </select>
+            </div>
+
+            <div class="select-wrapper">
+              <label for="sort-tasks" class="sr-only">Sort Tasks</label>
+              <select id="sort-tasks" title="Sort Tasks">
+                <option value="newest">Sort: Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="alphabetical">Alphabetical</option>
+                <option value="priority">Priority</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Task Cards List -->
+      <section class="task-list-section">
+        <ul id="task-list" class="task-list"></ul>
+      </section>
+    </main>
+  </div>
+
+  <!-- Custom Confirmation Dialog Modal -->
+  <div id="confirm-modal" class="modal-overlay" aria-hidden="true" role="dialog">
+    <div class="modal-card">
+      <h3 id="modal-title">Confirm Action</h3>
+      <p id="modal-message">Are you sure you want to perform this action?</p>
+      <div class="modal-actions">
+        <button id="modal-cancel-btn" class="btn btn-secondary">Cancel</button>
+        <button id="modal-confirm-btn" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
