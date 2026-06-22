@@ -53,7 +53,7 @@ JavaScript Logic & State Management/
 
 ## Preview & Screenshots
 
-### Application Dashboard (Dark Theme)
+### Application Dashboard 
 ![FocusFlow Landing State](assets/screenshots/landing_state.png)
 
 ### Task Creation & Context Metric Updates
