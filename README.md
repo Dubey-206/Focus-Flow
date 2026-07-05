@@ -1,4 +1,4 @@
-# FocusFlow — Premium State-Driven Task Manager
+# FocusFlow — Task Manager
 
 FocusFlow is an interactive, client-side To-Do List and productivity board built entirely with **Vanilla HTML5, CSS3, and Modern JavaScript (ES6+)**. The project is designed with a premium glassmorphism dark aesthetic (with built-in light mode toggle) and demonstrates advanced DOM manipulation, centralized state management, event delegation, and browser data persistence.
 
